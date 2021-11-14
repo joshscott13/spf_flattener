@@ -43,9 +43,10 @@ class SPFRecord(TxtRecord):
     
     def __init__(self, domainName):
         super().__init__(domainName)
-        self.includeHosts = self._getIncludedHosts()
+        self.includedHosts = self._getIncludedHosts()
         self.ip4List = self._getIP4Hosts()
         self.includedHostIps = self._getIncludedHostIps()
+
 
     def _getIncludedHosts(self) -> list: # parses the "include:" directives out of the SPF string
         hostList = []
@@ -74,11 +75,25 @@ class SPFRecord(TxtRecord):
                     #     ipHostList.append(strippedIP)
         return ipHostList
     
+
     def _getIncludedHostIps(self):
         iplist = []
         ipreg = re.compile('\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}\/*\d{0,2}')
-        for record in self.includeHosts:
-            print(record)
+        for record in self.includedHosts:
+            iplist.append(record)
 
 
-spf1 = SPFRecord('paloalto.com')
+    def checkHostType(self, host) -> str: #returns 'txtrecord', indicating recursion needed, or an ip address
+        try:
+            with subprocess.Popen(["nslookup", host], stdout=subprocess.PIPE) as proc:
+                result = proc.stdout.read().decode()
+                print(result)
+                if result:
+                    return "results indicate ip addresses"
+                else:
+                    return "recursion needed"
+        except:
+            pass
+spf1 = SPFRecord('cefcu.com')
+print(spf1.includedHosts[-3])
+print(spf1.checkHostType(spf1.includedHosts[-4]))
