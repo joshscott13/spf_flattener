@@ -95,5 +95,3 @@ class SPFRecord(TxtRecord):
         except:
             pass
 spf1 = SPFRecord('cefcu.com')
-print(spf1.includedHosts[-3])
-print(spf1.checkHostType(spf1.includedHosts[-4]))
