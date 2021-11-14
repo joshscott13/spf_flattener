@@ -40,11 +40,12 @@ class TxtRecord:
         
 
 class SPFRecord(TxtRecord):
-
+    
     def __init__(self, domainName):
         super().__init__(domainName)
         self.includeHosts = self._getIncludedHosts()
-    #     self.ipList = []
+        self.ip4List = self._getIP4Hosts()
+        self.includedHostIps = self._getIncludedHostIps()
 
     def _getIncludedHosts(self) -> list: # parses the "include:" directives out of the SPF string
         hostList = []
@@ -57,8 +58,27 @@ class SPFRecord(TxtRecord):
         return hostList
 
 
-spf1 = SPFRecord('cefcu.com')
-for host in spf1.includeHosts:
-    print(host)
-for txtrecord in spf1.txtrecords:
-    print(txtrecord)
+    def _getIP4Hosts(self) -> list:
+        ipHostList = []
+        ipreg = re.compile('\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}\/*\d{0,2}')
+        for record in self.txtrecords:
+            if record.startswith("\"v=spf1"):
+                split = record.split()
+                for i in split:
+                    match = ipreg.findall(i)
+                    if match:
+                        ipHostList.append("ip4:" + match[0])
+                    # ipHostList.append(match)
+                    # if i.startswith("ip4:"):
+                    #     strippedIP = i[4:]
+                    #     ipHostList.append(strippedIP)
+        return ipHostList
+    
+    def _getIncludedHostIps(self):
+        iplist = []
+        ipreg = re.compile('\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}\/*\d{0,2}')
+        for record in self.includeHosts:
+            print(record)
+
+
+spf1 = SPFRecord('paloalto.com')
