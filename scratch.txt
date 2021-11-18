@@ -1,0 +1,5 @@
+pseudocode...
+
+recursive spf stuff:
+if included host does not return 'nslookup host' ip address
+then run 

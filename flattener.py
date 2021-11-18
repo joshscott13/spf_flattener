@@ -2,20 +2,6 @@ import subprocess
 import re
 from ipaddress import ip_network, ip_address
 
-def validateIPaddress(ip):
-    try:
-        if ip_address(ip):
-            print(f"{ip} is valid!")
-    except ValueError as e:
-        print(f"{ip} is NOT a valid IPv4 address!")
-
-
-def validateIPsubnet(ipsubnet):
-    try:
-        if ip_network(ipsubnet, strict=False):
-            print(f"{ipsubnet} is valid")
-    except ValueError as e:
-        print(f"{ipsubnet} is NOT a valid IPv4 network!")
 
 class TxtRecord:
     
@@ -69,10 +55,6 @@ class SPFRecord(TxtRecord):
                     match = ipreg.findall(i)
                     if match:
                         ipHostList.append("ip4:" + match[0])
-                    # ipHostList.append(match)
-                    # if i.startswith("ip4:"):
-                    #     strippedIP = i[4:]
-                    #     ipHostList.append(strippedIP)
         return ipHostList
     
 
@@ -83,15 +65,27 @@ class SPFRecord(TxtRecord):
             iplist.append(record)
 
 
-    def checkHostType(self, host) -> str: #returns 'txtrecord', indicating recursion needed, or an ip address
+    def hostLookup(self, host) -> str: #returns 'txtrecord', indicating recursion needed, or an ip address
         try:
             with subprocess.Popen(["nslookup", host], stdout=subprocess.PIPE) as proc:
                 result = proc.stdout.read().decode()
                 print(result)
-                if result:
-                    return "results indicate ip addresses"
+                if "*** Can't find" in result:
+                    return "need to check txt record"
                 else:
-                    return "recursion needed"
+                    return "test"
         except:
             pass
-spf1 = SPFRecord('cefcu.com')
+
+
+    def flatten(self):
+        flattened = ""
+        for host in self.includedHosts:
+            pass
+
+
+spf1 = SPFRecord('_spf.mailgun.org')
+print(spf1.includedHosts)
+print(spf1.ip4List)
+print(spf1.includedHostIps)
+print(spf1.hostLookup('spf1.cefcu.com'))
