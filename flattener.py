@@ -15,12 +15,10 @@ class TxtRecord:
         p = re.compile('(\".*\")')
         txtrecordlist = []
         try:
-            with subprocess.Popen(["dig", self.domainName, "TXT"], stdout=subprocess.PIPE) as proc:
-                result = proc.stdout.read().decode()
-                txts = p.findall(result) # regex searches through the result of the query for strings starting and ending in "
-                for m in txts:
-                    txtrecordlist.append(m)
-                return txtrecordlist
+            query = subprocess.run(["nslookup", "-type=TXT", self.domainName], capture_output=True, text=True)
+            match = p.findall(query.stdout)
+            txtrecordlist = [m for m in match]
+            return txtrecordlist
         except:
             pass
         
@@ -29,20 +27,15 @@ class SPFRecord(TxtRecord):
     
     def __init__(self, domainName):
         super().__init__(domainName)
-        self.includedHosts = self._getIncludedHosts()
-        self.ip4List = self._getIP4Hosts()
-        self.includedHostIps = self._getIncludedHostIps()
+        self.spfrecord = self._getSPFRecord()
+        # self.includedHosts = self._getIncludedHosts()
+        # self.ip4List = self._getIP4Hosts()
+        # self.includedHostIps = self._getIncludedHostIps()
 
 
-    def _getIncludedHosts(self) -> list: # parses the "include:" directives out of the SPF string
-        hostList = []
-        for record in self.txtrecords:
-            if record.startswith("\"v=spf1"):
-                split = record.split()
-                for i in split:
-                    if i.startswith("include:"):
-                        hostList.append(i.replace("include:", ""))
-        return hostList
+    def _getSPFRecord(self):
+
+
 
 
     def _getIP4Hosts(self) -> list:
@@ -84,8 +77,5 @@ class SPFRecord(TxtRecord):
             pass
 
 
-spf1 = SPFRecord('_spf.mailgun.org')
-print(spf1.includedHosts)
-print(spf1.ip4List)
-print(spf1.includedHostIps)
-print(spf1.hostLookup('spf1.cefcu.com'))
+spf1 = SPFRecord('cnn.com')
+print(spf1.txtrecords)
