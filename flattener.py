@@ -28,15 +28,22 @@ class SPFRecord(TxtRecord):
     def __init__(self, domainName):
         super().__init__(domainName)
         self.spfrecord = self._getSPFRecord()
-        # self.includedHosts = self._getIncludedHosts()
-        # self.ip4List = self._getIP4Hosts()
+        self.includedHosts = self._getIncludedHosts()
+        self.ip4List = self._getIP4Hosts()
         # self.includedHostIps = self._getIncludedHostIps()
 
 
     def _getSPFRecord(self):
-
-
-
+        spf = ""
+        reg = re.compile('(\"v=spf1.*\")')
+        for record in self.txtrecords:
+            if reg.findall(record):
+                return record
+    
+    def _getIncludedHosts(self):
+        reg = re.compile('(?<=include:)\S*')
+        hosts = [host.replace("include:", "") for host in self.spfrecord.split() if reg.findall(host)]
+        return hosts
 
     def _getIP4Hosts(self) -> list:
         ipHostList = []
@@ -77,5 +84,6 @@ class SPFRecord(TxtRecord):
             pass
 
 
-spf1 = SPFRecord('cnn.com')
+spf1 = SPFRecord('paloalto.com')
 print(spf1.txtrecords)
+print(spf1.includedHosts)
