@@ -29,7 +29,7 @@ class SPFRecord(TxtRecord):
         super().__init__(domainName)
         self.spfrecord = self._getSPFRecord()
         self.includedHosts = self._getIncludedHosts()
-        self.ip4List = self._getIP4Hosts()
+        self.ip4Hosts = self._getIP4Hosts()
         # self.includedHostIps = self._getIncludedHostIps()
 
 
@@ -84,6 +84,6 @@ class SPFRecord(TxtRecord):
             pass
 
 
-spf1 = SPFRecord('paloalto.com')
+spf1 = SPFRecord('cefcu.com')
 print(spf1.txtrecords)
 print(spf1.includedHosts)
